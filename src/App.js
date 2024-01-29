@@ -1,74 +1,66 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
-
-const Card = ({ country }) => {
-  const { flags, name } = country;
-  return (
-    <div className="card">
-      <img
-        src={flags.png}
-        alt={`Flag of ${name.common}`}
-        className="card-image"
-      />
-      <h2>{name.common}</h2>
-    </div>
-  );
-};
 
 const App = () => {
   const [countries, setCountries] = useState([]);
-  const [filteredCountries, setFilteredCountries] = useState([]);
-  const [error, setError] = useState(null);
+  const [displayedCountries, setDisplayedCountries] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! Status: ${res.status}`);
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://restcountries.com/v3.1/all");
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        return res.json();
-      })
-      .then((data) => {
+        const data = await response.json();
         setCountries(data);
-        setFilteredCountries(data);
-      })
-      .catch((err) => {
-        setError(err); // Log the error to the console
-        console.error("Error fetching data: ", err);
-      });
+        setDisplayedCountries(data);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const handleSearch = (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    setSearchTerm(searchTerm);
-    const filtered = countries.filter((country) =>
-      country.name.common.toLowerCase().includes(searchTerm)
-    );
-    setFilteredCountries(filtered);
+  useEffect(() => {
+    const filterCountries = () => {
+      const filteredData = countries.filter((country) =>
+        country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setDisplayedCountries(filteredData.length === 0 ? countries : filteredData);
+    };
+
+    filterCountries();
+  }, [searchTerm, countries]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   return (
     <div>
-      <div className="navbar">
+      <div className="search-input-wrapper">
         <input
           type="text"
-          placeholder="Search for a country..."
+          className="search-input"
           value={searchTerm}
-          onChange={handleSearch}
-          className="search-bar"
+          placeholder="Search for countries"
+          onChange={handleSearchChange}
         />
       </div>
-      <div className="container">
-        {error ? (
-          <div className="error-message">Error loading data from the API</div>
-        ) : filteredCountries.length === 0 ? (
-          <div className="no-results">No matching countries found</div>
-        ) : (
-          filteredCountries.map((country) => (
-            <Card key={country.cca3} country={country} />
-          ))
-        )}
+      <div className="country-card">
+        {displayedCountries.map((country) => (
+          <div key={country.cca3} className="card-style">
+            <img
+              className="image-style"
+              src={country.flags.png}
+              alt={`Flag of ${country.name.common}`}
+            />
+            <h2>{country.name.common}</h2>
+          </div>
+        ))}
       </div>
     </div>
   );
