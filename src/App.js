@@ -7,6 +7,7 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
+    // Fetch countries data on component mount
     const fetchData = async () => {
       try {
         const response = await fetch("https://restcountries.com/v3.1/all");
@@ -25,6 +26,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    // Filter countries based on search input
     const filterCountries = () => {
       const filteredData = countries.filter((country) =>
         country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
@@ -41,14 +43,16 @@ const App = () => {
 
   return (
     <div>
-      <div className="search-input-wrapper">
-        <input
-          type="text"
-          className="search-input"
-          value={searchTerm}
-          placeholder="Search for countries"
-          onChange={handleSearchChange}
-        />
+      <div className="navbar">
+        <div className="search-input-wrapper">
+          <input
+            type="text"
+            className="search-input"
+            value={searchTerm}
+            placeholder="Search for countries"
+            onChange={handleSearchChange}
+          />
+        </div>
       </div>
       <div className="country-card">
         {displayedCountries.map((country) => (
