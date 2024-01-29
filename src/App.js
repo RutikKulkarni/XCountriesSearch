@@ -1,62 +1,91 @@
 import { useEffect, useState } from "react";
-import "./App.css";
 
-const App = () => {
+function App() {
   const [countries, setCountries] = useState([]);
-  const [displayedCountries, setDisplayedCountries] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-
+  const [showCountries, setShowCountries] = useState([]);
+  const [searchCountries, setSearchCountries] = useState("");
+  // const [specificCountries, setSpecificCountries] = useState([]);
+  // Fetch countries data on component mount
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("https://restcountries.com/v3.1/all");
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
+    fetch("https://restcountries.com/v3.1/all")
+      .then((res) => res.json())
+      .then((data) => {
         setCountries(data);
-        setDisplayedCountries(data);
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-      }
-    };
-
-    fetchData();
+        setShowCountries(data);
+      })
+      .catch((err) => console.error("Error fetching data: ", err));
   }, []);
-
+  // Filter countries based on search input
   useEffect(() => {
-    const filterCountries = () => {
-      const filteredData = countries.filter((country) =>
-        country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setDisplayedCountries(filteredData.length === 0 ? countries : filteredData);
-    };
+    let filteredData = countries.filter((country) =>
+      country.name.common.toLowerCase().includes(searchCountries.toLowerCase())
+    );
+    if(!searchCountries){
+      setShowCountries("")
+      setShowCountries(countries)
+    }else{
+      setShowCountries(filteredData)
+    }
 
-    filterCountries();
-  }, [searchTerm, countries]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchCountries]);
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+  function handleChange(e) {
+    setSearchCountries(e.target.value);
+  }
+
+  const cardStyle = {
+    width: "200px",
+    border: "1px solid #ccc",
+    borderRadius: "10px",
+    margin: "10px",
+    padding: "10px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
   };
 
+  const imageStyle = {
+    width: "100px",
+    height: "100px",
+  };
+
+  const countryCard = {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+  };
+
+  const searchInputWrapper = {
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+  };
+
+  const searchInput = {
+    marginTop: "5px",
+    height: "25px",
+    width: "50%",
+  };
   return (
     <div>
-      <div className="navbar">
-        <div className="search-input-wrapper">
-          <input
-            type="text"
-            className="search-input"
-            value={searchTerm}
-            placeholder="Search for countries"
-            onChange={handleSearchChange}
-          />
-        </div>
+      <div style={searchInputWrapper}>
+        <input
+          type="text"
+          style={searchInput}
+          value={searchCountries}
+          placeholder="Search for countries..."
+          onChange={handleChange}
+        />
       </div>
-      <div className="country-card">
-        {displayedCountries.map((country) => (
-          <div key={country.cca3} className="card-style">
+      <div style={countryCard}>
+        {showCountries.map((country) => (
+          <div key={country.cca3} style={cardStyle}>
             <img
-              className="image-style"
+              style={imageStyle}
               src={country.flags.png}
               alt={`Flag of ${country.name.common}`}
             />
@@ -66,6 +95,6 @@ const App = () => {
       </div>
     </div>
   );
-};
+}
 
 export default App;
