@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './App.css'; 
+import './App.css';
 
 const CountryFlags = () => {
   const [countries, setCountries] = useState([]);
@@ -34,12 +34,12 @@ const CountryFlags = () => {
       </div>
       <div className="country-cards">
         {filteredCountries.map((country) => (
-          <div key={country.cca2} className="country-card">
+          <div key={country.cca2} className="countryCard">
             <img
               src={country.flags.png}
               alt={`Flag of ${country.name.common}`}
             />
-            <p>{country.name.common}</p>
+            <h2>{country.name.common}</h2>
           </div>
         ))}
       </div>
